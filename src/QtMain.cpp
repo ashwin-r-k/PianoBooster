@@ -20,13 +20,37 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QByteArray>
 
 #include <cstdlib>
 
 #include "QtWindow.h"
 #include "version.h"
 
+namespace {
+bool isWaylandSession()
+{
+    const auto sessionType = qEnvironmentVariable("XDG_SESSION_TYPE");
+    if (sessionType.compare(QLatin1String("wayland"), Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    return qEnvironmentVariableIsSet("WAYLAND_DISPLAY");
+}
+
+void configureOpenGlBackend()
+{
+    if (!qEnvironmentVariable("QT_OPENGL").isEmpty()) {
+        return;
+    }
+    if (isWaylandSession()) {
+        QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+        qputenv("QT_OPENGL", QByteArrayLiteral("desktop"));
+    }
+}
+} // namespace
+
 int main(int argc, char *argv[]){
+    configureOpenGlBackend();
     QCoreApplication::setOrganizationName(QStringLiteral("PianoBooster"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("https://github.com/pianobooster/PianoBooster"));
     QCoreApplication::setApplicationName(QStringLiteral("Piano Booster"));

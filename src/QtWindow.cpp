@@ -83,6 +83,15 @@ QtWindow::QtWindow()
     set_realtime_priority(SCHED_FIFO, rt_prio);
 #endif
 
+    const auto qtOpenGl = qEnvironmentVariable("QT_OPENGL");
+    const bool useDesktopFormat = qtOpenGl == QLatin1String("desktop")
+        || (qtOpenGl.isEmpty() && fmt.renderableType() == QSurfaceFormat::OpenGL);
+    if (useDesktopFormat) {
+        fmt.setRenderableType(QSurfaceFormat::OpenGL);
+        fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
+        fmt.setVersion(2, 1);
+    }
+
     QString antiAliasingSetting = m_settings->value("anti-aliasing").toString();
     if (antiAliasingSetting.isEmpty() || antiAliasingSetting=="on"){
         fmt.setSamples(4);
