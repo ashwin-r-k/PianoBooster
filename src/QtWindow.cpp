@@ -84,7 +84,9 @@ QtWindow::QtWindow()
 #endif
 
     const auto qtOpenGl = qEnvironmentVariable("QT_OPENGL");
-    if (qtOpenGl.isEmpty() || qtOpenGl == QLatin1String("desktop")) {
+    const bool useDesktopFormat = qtOpenGl == QLatin1String("desktop")
+        || (qtOpenGl.isEmpty() && fmt.renderableType() == QSurfaceFormat::OpenGL);
+    if (useDesktopFormat) {
         fmt.setRenderableType(QSurfaceFormat::OpenGL);
         fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
         fmt.setVersion(2, 1);
